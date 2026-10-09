@@ -112,6 +112,7 @@ struct aa_data {
  * @policy: general match rules governing policy
  * @file: The set of rules governing basic file access and domain transitions
  * @caps: capabilities for the profile
+ * @net_compat: v2 compat network controls for the profile
  * @rlimits: rlimits for the profile
  *
  * @dents: dentries for the profiles file entries in apparmorfs
@@ -139,7 +140,7 @@ struct aa_profile {
 
 	const char *attach;
 	struct aa_dfa *xmatch;
-	int xmatch_len;
+	unsigned int xmatch_len;
 	enum audit_mode audit;
 	long mode;
 	u32 path_flags;
@@ -149,6 +150,7 @@ struct aa_profile {
 	struct aa_policydb policy;
 	struct aa_file_rules file;
 	struct aa_caps caps;
+	struct aa_net_compat *net_compat;
 
 	int xattr_count;
 	char **xattrs;
@@ -224,14 +226,28 @@ static inline unsigned int PROFILE_MEDIATES(struct aa_profile *profile,
 					profile->policy.start[0], &class, 1);
 }
 
+/* safe version of POLICY_MEDIATES for full range input */
+static inline unsigned int PROFILE_MEDIATES_SAFE(struct aa_profile *profile,
+						 unsigned char class)
+{
+	if (profile->policy.dfa)
+		return aa_dfa_match_len(profile->policy.dfa,
+					profile->policy.start[0], &class, 1);
+	return 0;
+}
+
 static inline unsigned int PROFILE_MEDIATES_AF(struct aa_profile *profile,
 					       u16 AF) {
 	unsigned int state = PROFILE_MEDIATES(profile, AA_CLASS_NET);
 	__be16 be_af = cpu_to_be16(AF);
 
-	if (!state)
-		return 0;
-	return aa_dfa_match_len(profile->policy.dfa, state, (char *) &be_af, 2);
+	if (!state) {
+		state = PROFILE_MEDIATES(profile, AA_CLASS_NET_COMPAT);
+		if (!state)
+			return 0;
+	}
+	state = aa_dfa_match_len(profile->policy.dfa, state, (char *) &be_af, 2);
+	return state;
 }
 
 /**
@@ -244,7 +260,7 @@ static inline unsigned int PROFILE_MEDIATES_AF(struct aa_profile *profile,
 static inline struct aa_profile *aa_get_profile(struct aa_profile *p)
 {
 	if (p)
-		kref_get(&(p->label.count));
+		kref_get(&(p->label.count.count));
 
 	return p;
 }
@@ -258,7 +274,7 @@ static inline struct aa_profile *aa_get_profile(struct aa_profile *p)
  */
 static inline struct aa_profile *aa_get_profile_not0(struct aa_profile *p)
 {
-	if (p && kref_get_unless_zero(&p->label.count))
+	if (p && kref_get_unless_zero(&p->label.count.count))
 		return p;
 
 	return NULL;
@@ -278,7 +294,7 @@ static inline struct aa_profile *aa_get_profile_rcu(struct aa_profile __rcu **p)
 	rcu_read_lock();
 	do {
 		c = rcu_dereference(*p);
-	} while (c && !kref_get_unless_zero(&c->label.count));
+	} while (c && !kref_get_unless_zero(&c->label.count.count));
 	rcu_read_unlock();
 
 	return c;
@@ -291,7 +307,7 @@ static inline struct aa_profile *aa_get_profile_rcu(struct aa_profile __rcu **p)
 static inline void aa_put_profile(struct aa_profile *p)
 {
 	if (p)
-		kref_put(&p->label.count, aa_label_kref);
+		kref_put(&p->label.count.count, aa_label_kref);
 }
 
 static inline int AUDIT_MODE(struct aa_profile *profile)
@@ -304,7 +320,8 @@ static inline int AUDIT_MODE(struct aa_profile *profile)
 
 bool policy_view_capable(struct aa_ns *ns);
 bool policy_admin_capable(struct aa_ns *ns);
-int aa_may_manage_policy(struct aa_label *label, struct aa_ns *ns,
-			 u32 mask);
+int aa_may_manage_policy(const struct cred *subj_cred,
+			 struct aa_label *label, struct aa_ns *ns,
+			 const struct cred *ocred, u32 mask);
 
 #endif /* __AA_POLICY_H */
