@@ -220,17 +220,23 @@ static void aafs_evict(struct inode *inode)
 	inode->i_private = (void *) IREF_POISON;
 }
 
-static void aafs_free_inode(struct inode *inode)
+static void aafs_i_callback(struct rcu_head *head)
 {
+	struct inode *inode = container_of(head, struct inode, i_rcu);
 	if (S_ISLNK(inode->i_mode))
 		kfree(inode->i_link);
 	free_inode_nonrcu(inode);
 }
 
+static void aafs_destroy_inode(struct inode *inode)
+{
+	call_rcu(&inode->i_rcu, aafs_i_callback);
+}
+
 static const struct super_operations aafs_super_ops = {
 	.statfs = simple_statfs,
 	.evict_inode = aafs_evict,
-	.free_inode = aafs_free_inode,
+	.destroy_inode = aafs_destroy_inode,
 	.show_path = aafs_show_path,
 };
 
