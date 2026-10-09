@@ -18,9 +18,52 @@
 struct sec_ts_data *tsp_info;
 
 #include "sec_ts.h"
+#include <linux/incell.h>
 
 struct sec_ts_data *ts_dup;
 struct drm_panel *sec_ts_active_panel = NULL;
+
+/* Disabled unless selected by the device adaptation or runtime settings. */
+static bool double_tap_to_wake;
+static bool dtw_power_locked;
+static int sec_ts_set_double_tap(const char *val, const struct kernel_param *kp)
+{
+	struct sec_ts_data *ts = ts_dup;
+	bool enabled;
+	int ret = kstrtobool(val, &enabled);
+
+	if (ret)
+		return ret;
+	if (!ts)
+		return param_set_bool(val, kp);
+
+	mutex_lock(&ts->device_mutex);
+	/* A powered-down panel must be resumed before arming its sensor. */
+	if (enabled && ts->power_status == SEC_TS_STATE_POWER_OFF) {
+		ret = -EBUSY;
+	} else {
+		WRITE_ONCE(double_tap_to_wake, enabled);
+		if (ts->power_status == SEC_TS_STATE_POWER_ON) {
+			if (enabled)
+				ts->lowpower_mode |= SEC_TS_MODE_CUSTOMLIB_AOD;
+			else
+				ts->lowpower_mode &= ~SEC_TS_MODE_CUSTOMLIB_AOD;
+		}
+		/* In LPM disabling immediately suppresses wake events. Retain
+		 * the powered sensor until normal display resume releases it.
+		 */
+	}
+	mutex_unlock(&ts->device_mutex);
+	return ret;
+}
+
+static const struct kernel_param_ops sec_ts_double_tap_ops = {
+	.set = sec_ts_set_double_tap,
+	.get = param_get_bool,
+};
+module_param_cb(double_tap_to_wake, &sec_ts_double_tap_ops,
+		&double_tap_to_wake, 0644);
+MODULE_PARM_DESC(double_tap_to_wake, "S6SY761 p213 double-tap wake mode");
 
 u32 portrait_buffer[SEC_TS_GRIP_REJECTION_BORDER_NUM] = { 0 };
 u32 landscape_buffer[SEC_TS_GRIP_REJECTION_BORDER_NUM] = { 0 };
@@ -1031,6 +1074,22 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 		case SEC_TS_GESTURE_EVENT:
 			p_gesture_status = (struct sec_ts_gesture_status *)event_buff;
 
+			/* S6SY761 p213 firmware reports its wake gesture
+			 * as subtype 0, id 15. Qualify this separately from the
+			 * unused generic Samsung double-tap subtype below.
+			 */
+			if (READ_ONCE(double_tap_to_wake) &&
+			    ts->power_status == SEC_TS_STATE_LPM &&
+			    p_gesture_status->stype == 0 &&
+			    p_gesture_status->gesture_id == 15) {
+				input_info(true, &ts->client->dev,
+					   "p213 wake gesture\n");
+				input_report_key(ts->input_dev, KEY_POWER, 1);
+				input_sync(ts->input_dev);
+				input_report_key(ts->input_dev, KEY_POWER, 0);
+				input_sync(ts->input_dev);
+			}
+
 			switch (p_gesture_status->stype) {
 			case SEC_TS_GESTURE_CODE_SPAY:
 				/*							*/
@@ -1038,9 +1097,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 				/*						   	*/
 				break;
 			case SEC_TS_GESTURE_CODE_DOUBLE_TAP:
-				/*							*/
-				/*  Gesture event handling 	*/
-				/*						   	*/
+				/* Unqualified generic Samsung event format. */
 				break;
 			}
 
@@ -1684,6 +1741,7 @@ static void sec_ts_set_input_prop(struct sec_ts_data *ts, struct input_dev *dev,
 	set_bit(BTN_TOUCH, dev->keybit);
 	set_bit(BTN_TOOL_FINGER, dev->keybit);
 	set_bit(KEY_BLACK_UI_GESTURE, dev->keybit);
+	input_set_capability(dev, EV_KEY, KEY_POWER);
 #ifdef SEC_TS_SUPPORT_TOUCH_KEY
 	if (ts->plat_data->support_mskey) {
 		int i;
@@ -1849,6 +1907,9 @@ static int sec_ts_probe(struct i2c_client *client, const struct i2c_device_id *i
 	else
 		ts->lowpower_mode &= ~SEC_TS_MODE_CUSTOMLIB_FORCE_KEY;
 
+	if (double_tap_to_wake)
+		ts->lowpower_mode |= SEC_TS_MODE_CUSTOMLIB_AOD;
+
 	input_dbg(ts->debug_flag, &client->dev, "%s: init resource\n", __func__);
 
 	sec_ts_pinctrl_configure(ts, true);
@@ -2011,7 +2072,9 @@ static int sec_ts_probe(struct i2c_client *client, const struct i2c_device_id *i
 	p_ghost_check = &ts->ghost_check;
 #endif
 
+	kernel_param_lock(THIS_MODULE);
 	ts_dup = ts;
+	kernel_param_unlock(THIS_MODULE);
 	ts->probe_done = true;
 	input_err(true, &ts->client->dev, "%s: done \n", __func__);
 	input_log_fix();
@@ -2437,6 +2500,16 @@ static void sec_ts_input_close(struct input_dev *dev)
 static int sec_ts_remove(struct i2c_client *client)
 {
 	struct sec_ts_data *ts = i2c_get_clientdata(client);
+	incell_pw_status status;
+
+	kernel_param_lock(THIS_MODULE);
+	ts_dup = NULL;
+	kernel_param_unlock(THIS_MODULE);
+	if (dtw_power_locked) {
+		incell_power_lock_ctrl(INCELL_DISPLAY_POWER_UNLOCK,
+					      &status);
+		dtw_power_locked = false;
+	}
 
 	input_dbg(ts->debug_flag, &ts->client->dev, "%s\n", __func__);
 
@@ -2502,6 +2575,33 @@ int sec_ts_stop_device(struct sec_ts_data *ts)
 	}
 	mutex_lock(&ts->device_mutex);
 
+	if (dtw_power_locked && ts->power_status == SEC_TS_STATE_LPM)
+		goto out;
+
+	if (double_tap_to_wake && ts->lowpower_mode &&
+	    ts->power_status != SEC_TS_STATE_POWER_OFF) {
+		incell_pw_status status;
+		int lock_ret;
+
+		if (ts->power_status == SEC_TS_STATE_LPM)
+			goto out;
+
+		lock_ret = incell_power_lock_ctrl(INCELL_DISPLAY_POWER_LOCK,
+						 &status);
+		if (lock_ret == INCELL_OK) {
+			dtw_power_locked = true;
+			if (!sec_ts_set_lowpowermode(ts, TO_LOWPOWER_MODE))
+				goto out;
+			incell_power_lock_ctrl(INCELL_DISPLAY_POWER_UNLOCK,
+					      &status);
+			dtw_power_locked = false;
+		} else {
+			input_err(true, &ts->client->dev,
+				  "double-tap power lock failed: %d\n",
+				  lock_ret);
+		}
+	}
+
 	if (ts->power_status == SEC_TS_STATE_POWER_OFF) {
 		input_err(true, &ts->client->dev, "%s: already power off\n", __func__);
 		goto out;
@@ -2537,6 +2637,29 @@ int sec_ts_start_device(struct sec_ts_data *ts)
 	sec_ts_pinctrl_configure(ts, true);
 
 	mutex_lock(&ts->device_mutex);
+
+	if (dtw_power_locked && ts->power_status == SEC_TS_STATE_LPM) {
+		incell_pw_status status;
+
+		ret = sec_ts_set_lowpowermode(ts, TO_TOUCH_MODE);
+		if (dtw_power_locked) {
+			incell_power_lock_ctrl(INCELL_DISPLAY_POWER_UNLOCK,
+					      &status);
+			dtw_power_locked = false;
+		}
+		if (!ret) {
+			if (double_tap_to_wake)
+				ts->lowpower_mode |= SEC_TS_MODE_CUSTOMLIB_AOD;
+			else
+				ts->lowpower_mode &= ~SEC_TS_MODE_CUSTOMLIB_AOD;
+			goto out;
+		}
+		disable_irq_wake(ts->client->irq);
+		/* Recover input if the firmware cannot leave low power. */
+		disable_irq(ts->client->irq);
+		ts->plat_data->power(ts, false);
+		ts->power_status = SEC_TS_STATE_POWER_OFF;
+	}
 
 	if (ts->power_status == SEC_TS_STATE_POWER_ON) {
 		input_err(true, &ts->client->dev, "%s: already power on\n", __func__);
@@ -2684,9 +2807,10 @@ static int sec_ts_pm_suspend(struct device *dev)
 {
 	struct sec_ts_data *ts = dev_get_drvdata(dev);
 	
-	disable_irq(ts->client->irq);
+	if (ts->power_status != SEC_TS_STATE_LPM)
+		disable_irq(ts->client->irq);
 	input_err(true, &ts->client->dev, "%s:enter\n", __func__);
-	if (ts->lowpower_mode)
+	if (ts->power_status == SEC_TS_STATE_LPM)
 		reinit_completion(&ts->resume_done);
 
 	return 0;
@@ -2696,9 +2820,10 @@ static int sec_ts_pm_resume(struct device *dev)
 {
 	struct sec_ts_data *ts = dev_get_drvdata(dev);
 
-	enable_irq(ts->client->irq);
+	if (ts->power_status != SEC_TS_STATE_LPM)
+		enable_irq(ts->client->irq);
 	input_err(true, &ts->client->dev, "%s:enter\n", __func__);
-	if (ts->lowpower_mode)
+	if (ts->power_status == SEC_TS_STATE_LPM)
 		complete_all(&ts->resume_done);
 
 	return 0;
