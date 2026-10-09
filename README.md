@@ -4,8 +4,9 @@ Experimental Actinis community kernel for Sony Xperia 10 III `pdx213`/`lena`,
 Halium 11 and **Ubuntu Touch 24.04 Noble**. XQ-BT52 is the prototype variant;
 other models and firmware revisions are not qualified.
 
-The buildable source branch is `pdx213-halium11-noble`; `main` retains repository
-infrastructure. Full Sony/mer-hybris upstream history, authorship and licences
+The `main` branch contains the buildable kernel source and repository
+infrastructure. `upstream/sony-halium-11` provides the upstream baseline for
+comparison. Full Sony/mer-hybris upstream history, authorship and licences
 are preserved. `docs/UPSTREAM.json` records the exact upstream base, AppArmor
 source and submodule pins. No blanket relicensing is applied.
 
