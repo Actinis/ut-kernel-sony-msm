@@ -1,20 +1,21 @@
-# Sony MSM kernel for Ubuntu Touch
+# Sony MSM kernel for Ubuntu Touch Noble
 
-Kernel repository for **Ubuntu Touch** device ports maintained by Actinis.
+Experimental Actinis community kernel for Sony Xperia 10 III `pdx213`/`lena`,
+Halium 11 and **Ubuntu Touch 24.04 Noble**. XQ-BT52 is the prototype variant;
+other models and firmware revisions are not qualified.
 
-Initial target: Sony Xperia 10 III (`pdx213` / `lena`), Halium 11, Ubuntu Touch 24.04 (Noble).
+The buildable source branch is `pdx213-halium11-noble`; `main` retains repository
+infrastructure. Full Sony/mer-hybris upstream history, authorship and licences
+are preserved. `docs/UPSTREAM.json` records the exact upstream base, AppArmor
+source and submodule pins. No blanket relicensing is applied.
 
-## Status
+AppArmor Unix peer mediation and the Linux 4.19 inode API adaptation are in-tree.
+The cfg80211 PMF/IGTK key-index repair is also in-tree. **Do not reapply any
+backport during a build.** Merge `arch/arm64/configs/pdx213_noble.config` over
+`aosp_lena_pdx213_defconfig`, then build with NDK r23b and a separate `O=` directory.
 
-Preparation scaffold only: kernel source history has not been imported yet. This repository cannot currently build a kernel.
-
-The planned source import will preserve the upstream Sony/mer-hybris kernel history and licenses, record the exact upstream base, and include the Ubuntu Touch configuration and adaptation changes with their provenance. This README does not license or relicense upstream kernel code.
-
-The device adaptation repository will pin the exact kernel commit used for each release. Kernel branches follow the hardware/Halium baseline; Ubuntu Touch release support and device qualification are tracked separately.
-
-## Related repositories
-
-- [Sony Xperia 10 III device adaptation](https://github.com/Actinis/ut-device-sony-pdx213)
-- [Port catalog](https://github.com/Actinis/ut-ports)
-
-This is an Actinis community project, not an official UBports release.
+The [device repository](https://github.com/Actinis/ut-device-sony-pdx213) pins
+this branch by commit and provides the reproducible kernel/boot entry point.
+`python3 ci/test_cfg80211_pmf.py .` checks 80 actual-function capability cases.
+Build success is separate from device qualification; no phone is flashed by CI.
+No release tag, public image release or OTA channel is created here.

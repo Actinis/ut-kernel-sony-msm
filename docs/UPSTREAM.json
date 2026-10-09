@@ -1,0 +1,47 @@
+{
+  "base": "f52f6851f2600c315ae3aff3f5c91ac92b33a88b",
+  "url": "https://github.com/mer-hybris/android_kernel_sony_msm",
+  "apparmor_donor": {
+    "url": "https://gitlab.com/ubports/porting/reference-device-ports/android11/fairphone-4/kernel-fairphone-sm7225.git",
+    "commit": "e711799d588eb290348ad84a679e23fe5dc67dc5",
+    "scope": "security/apparmor"
+  },
+  "submodules": {
+    "drivers/staging/wlan-qc/fw-api": {
+      "commit": "7b58b37877560bbb3916a1e73624c045b51ad21a",
+      "url": "https://github.com/sonyxperiadev/vendor-qcom-opensource-wlan-fw-api.git"
+    },
+    "drivers/staging/wlan-qc/qca-wifi-host-cmn": {
+      "commit": "05c0eb422285a2919bff35f89ba29222f095f590",
+      "url": "https://github.com/sonyxperiadev/vendor-qcom-opensource-wlan-qca-wifi-host-cmn.git"
+    },
+    "drivers/staging/wlan-qc/qcacld-3.0": {
+      "commit": "a2e7d7e2ef4fcaf3fc32f62918ec604237cddd92",
+      "url": "https://github.com/sonyxperiadev/vendor-qcom-opensource-wlan-qcacld-3.0.git"
+    },
+    "techpack/audio": {
+      "commit": "a5bc0f922b0750e60a0e118901653c66121d7f98",
+      "url": "https://github.com/sonyxperiadev/kernel-techpack-audio.git"
+    },
+    "techpack/camera": {
+      "commit": "3505c0c6b1044af320a519a8df86a78b529a18d1",
+      "url": "https://github.com/sonyxperiadev/kernel-techpack-camera.git"
+    },
+    "techpack/data-kernel": {
+      "commit": "4e92b589559c082c8c13aae9d6d810097ee3bace",
+      "url": "https://github.com/sonyxperiadev/kernel-techpack-data-kernel.git"
+    },
+    "techpack/display": {
+      "commit": "f123ea13f259e65c7ac0410dd452e40ed582c0f9",
+      "url": "https://github.com/sonyxperiadev/kernel-techpack-display-driver.git"
+    },
+    "techpack/video": {
+      "commit": "d9fc5998882845766d7d37bef1ba5f497b43a212",
+      "url": "https://github.com/sonyxperiadev/kernel-techpack-video.git"
+    },
+    "wireguard-linux-compat": {
+      "commit": "18fbcd68a35a892527345dc5679d0b2d860ee004",
+      "url": "https://github.com/mer-hybris/wireguard-linux-compat.git"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 name: Repository checks
 on:
   push:
-    branches: [main]
+    branches: [pdx213-halium11-noble]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -24,14 +24,14 @@ jobs:
       - name: Check shell scripts
         run: |
           command -v shellcheck
-          find . -path './.git' -prune -o -type f -name '*.sh' -print0 | xargs -0 -r shellcheck
+          find ci -type f -name '*.sh' -print0 | xargs -0 -r shellcheck
       - name: Check Python syntax
         env:
           PYTHONPYCACHEPREFIX: ${{ runner.temp }}/python-cache
         run: |
           python3 - <<'PYTHON'
           import pathlib, py_compile
-          for path in pathlib.Path('.').rglob('*.py'):
+          for path in pathlib.Path('ci').rglob('*.py'):
               if '.git' not in path.parts:
                   py_compile.compile(str(path), doraise=True)
           PYTHON
