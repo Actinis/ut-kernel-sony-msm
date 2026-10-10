@@ -27,14 +27,19 @@ No release tag, public image release or OTA channel is created here.
 without claiming an unmodified CIP release. The 4.19.248 version is retained
 with an explicit backport-candidate suffix. Existing Actinis AppArmor, PMF and
 pdx213 double-tap wake adaptations remain in-tree. The Noble config enables
-ARM64 KPTI support; boot packaging must remove the previous `kpti=0` override
-for automatic CPU-based selection to operate.
+ARM64 KPTI support. The inherited Sony `__kpti_forced = -1` default
+forces KPTI off unless explicitly overridden; removing `kpti=0` from boot
+metadata does not establish automatic CPU-based selection.
 
 `docs/security-manual-resolutions.json` records vendor adaptations and
 `docs/security-remaining-scope.json` records exclusions. NCM's upstream OS
 descriptor/allocation refactor is excluded to preserve Android configfs/uevent
 ownership. This is not an exhaustive CVE assessment or an independent audit of
-all later Android/Qualcomm/Sony driver fixes. No device validation was performed.
+all later Android/Qualcomm/Sony driver fixes. On XQ-BT52, a clean build
+with the early boot RNG API adaptation and SDHCI host-lock fix booted both
+a RAM-only recovery and the installed Ubuntu Touch system. USB SSH, LightDM,
+oFono and the Android HAL container started. This confirms boot recovery;
+complete hardware, suspend and clean-install qualification remains pending.
 
 Audio and WireGuard compatibility commits are published in Actinis forks and
 pinned by exact commit in `.gitmodules` and `docs/UPSTREAM.json`. Upstream
