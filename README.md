@@ -36,13 +36,13 @@ metadata does not establish automatic CPU-based selection.
 descriptor/allocation refactor is excluded to preserve Android configfs/uevent
 ownership. This is not an exhaustive CVE assessment or an independent audit of
 all later Android/Qualcomm/Sony driver fixes. On XQ-BT52, a clean build
-with the early boot RNG API adaptation and SDHCI host-lock fix booted both
-a RAM-only recovery and the installed Ubuntu Touch system. USB SSH, LightDM,
-oFono and the Android HAL container started. The installed-system test then
-stalled at the Ubuntu Touch loading screen, lost USB/Wi-Fi connectivity and
-rebooted without a host command. The working boot and DTBO were restored.
-RAM boot is confirmed; the candidate remains unqualified for installation
-until this later failure and complete hardware/suspend testing are resolved.
+with the early boot RNG API adaptation and SDHCI host-lock fix booted a
+RAM-only recovery. With the QRTR packet-length guard correction as well,
+the installed Ubuntu Touch system reached its normal lock screen and kept
+USB SSH, LightDM, oFono and the Android HAL container running beyond the
+previous modem/ADSP failure window. A private Mir capture confirmed the lock
+screen. This is a boot qualification on the existing installation, not
+complete hardware, suspend or clean-install qualification.
 
 Audio and WireGuard compatibility commits are published in Actinis forks and
 pinned by exact commit in `.gitmodules` and `docs/UPSTREAM.json`. Upstream
