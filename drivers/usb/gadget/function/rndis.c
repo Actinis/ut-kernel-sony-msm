@@ -587,12 +587,20 @@ static int rndis_init_response(struct rndis_params *params,
 static int rndis_query_response(struct rndis_params *params,
 				rndis_query_msg_type *buf)
 {
+	u32 BufLength, BufOffset;
 	rndis_query_cmplt_type *resp;
 	rndis_resp_t *r;
 
 	/* pr_debug("%s: OID = %08X\n", __func__, cpu_to_le32(buf->OID)); */
 	if (!params->dev)
 		return -ENOTSUPP;
+
+	BufLength = le32_to_cpu(buf->InformationBufferLength);
+	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
+	if ((BufLength > RNDIS_MAX_TOTAL_SIZE) ||
+	    (BufOffset > RNDIS_MAX_TOTAL_SIZE) ||
+	    (BufOffset + 8 >= RNDIS_MAX_TOTAL_SIZE))
+		return -EINVAL;
 
 	/*
 	 * we need more memory:
@@ -610,10 +618,8 @@ static int rndis_query_response(struct rndis_params *params,
 	resp->RequestID = buf->RequestID; /* Still LE in msg buffer */
 
 	if (gen_ndis_query_resp(params, le32_to_cpu(buf->OID),
-			le32_to_cpu(buf->InformationBufferOffset)
-					+ 8 + (u8 *)buf,
-			le32_to_cpu(buf->InformationBufferLength),
-			r)) {
+				BufOffset + 8 + (u8 *)buf,
+				BufLength, r)) {
 		/* OID not supported */
 		resp->Status = cpu_to_le32(RNDIS_STATUS_NOT_SUPPORTED);
 		resp->MessageLength = cpu_to_le32(sizeof *resp);
@@ -1165,26 +1171,29 @@ int rndis_rm_hdr(struct gether *port,
 		}
 
 		hdr = (void *)skb->data;
-		msg_len = le32_to_cpu(hdr->MessageLength);
-		data_offset = le32_to_cpu(hdr->DataOffset);
-		data_len = le32_to_cpu(hdr->DataLength);
+		msg_len = get_unaligned_le32(skb->data + 4);
+		data_offset = get_unaligned_le32(skb->data + 8);
+		data_len = get_unaligned_le32(skb->data + 12);
 
-		if (skb->len < msg_len ||
-				((data_offset + data_len + 8) > msg_len)) {
+		if (msg_len < sizeof(*hdr) || msg_len > skb->len ||
+		    data_offset < sizeof(*hdr) - 8 ||
+		    data_offset > msg_len - 8 ||
+		    data_len > msg_len - 8 - data_offset) {
 			pr_err("invalid rndis message: %d/%d/%d/%d, len:%d\n",
-					le32_to_cpu(hdr->MessageType), msg_len,
+					get_unaligned_le32(skb->data), msg_len,
 					data_offset, data_len, skb->len);
 			dev_kfree_skb_any(skb);
 			return -EOVERFLOW;
 		}
-		if (le32_to_cpu(hdr->MessageType) != RNDIS_MSG_PACKET) {
+		if (get_unaligned_le32(skb->data) != RNDIS_MSG_PACKET) {
 			pr_err("invalid rndis message: %d/%d/%d/%d, len:%d\n",
-					le32_to_cpu(hdr->MessageType), msg_len,
+					get_unaligned_le32(skb->data), msg_len,
 					data_offset, data_len, skb->len);
 			dev_kfree_skb_any(skb);
 			return -EINVAL;
 		}
 
+		msg_len -= data_offset + 8;
 		skb_pull(skb, data_offset + 8);
 
 		if (msg_len == skb->len) {
@@ -1199,7 +1208,7 @@ int rndis_rm_hdr(struct gether *port,
 			return -ENOMEM;
 		}
 
-		skb_pull(skb, msg_len - sizeof(*hdr));
+		skb_pull(skb, msg_len);
 		skb_trim(skb2, data_len);
 		skb_queue_tail(list, skb2);
 	}

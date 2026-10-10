@@ -2793,7 +2793,7 @@ static int drm_cvt_modes(struct drm_connector *connector,
 	const u8 empty[3] = { 0, 0, 0 };
 
 	for (i = 0; i < 4; i++) {
-		int uninitialized_var(width), height;
+		int width, height;
 		cvt = &(timing->data.other_data.data.cvt[i]);
 
 		if (!memcmp(cvt->code, empty, 3))
@@ -2801,6 +2801,8 @@ static int drm_cvt_modes(struct drm_connector *connector,
 
 		height = (cvt->code[0] + ((cvt->code[1] & 0xf0) << 4) + 1) * 2;
 		switch (cvt->code[1] & 0x0c) {
+		/* default - because compiler doesn't see that we've enumerated all cases */
+		default:
 		case 0x00:
 			width = height * 4 / 3;
 			break;
@@ -5451,6 +5453,13 @@ static int drm_parse_tiled_block(struct drm_connector *connector,
 	u8 tile_v_loc, tile_h_loc;
 	u8 num_v_tile, num_h_tile;
 	struct drm_tile_group *tg;
+
+	/* tiled block payload per spec: cap 1 + topo 3 + size 4 + bezel 5 + id 9 = 22 */
+	if (block->num_bytes < 22) {
+		DRM_DEBUG_KMS("[CONNECTOR:%d:%s] Unexpected tiled block size %u\n",
+			      connector->base.id, connector->name, block->num_bytes);
+		return 0;
+	}
 
 	w = tile->tile_size[0] | tile->tile_size[1] << 8;
 	h = tile->tile_size[2] | tile->tile_size[3] << 8;

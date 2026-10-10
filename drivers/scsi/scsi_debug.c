@@ -2533,7 +2533,7 @@ static bool comp_write_worker(u64 lba, u32 num, const u8 *arr)
 	if (!res)
 		return res;
 	if (rest)
-		res = memcmp(fake_storep, arr + ((num - rest) * lb_size),
+		res = !memcmp(fake_storep, arr + ((num - rest) * lb_size),
 			     rest * lb_size);
 	if (!res)
 		return res;
@@ -3156,7 +3156,7 @@ static int resp_write_scat(struct scsi_cmnd *scp,
 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INVALID_FIELD_IN_CDB, 0);
 		return illegal_condition_result;
 	}
-	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC);
+	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC | __GFP_NOWARN);
 	if (lrdp == NULL)
 		return SCSI_MLQUEUE_HOST_BUSY;
 	if (sdebug_verbose)

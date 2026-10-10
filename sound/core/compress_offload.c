@@ -31,6 +31,8 @@
 #include <linux/math64.h>
 #include <linux/mm.h>
 #include <linux/mutex.h>
+
+static DEFINE_MUTEX(device_mutex);
 #include <linux/poll.h>
 #include <linux/slab.h>
 #include <linux/sched.h>
@@ -52,15 +54,6 @@
 #if _IOC_SIZEBITS < 14
 #define COMPR_CODEC_CAPS_OVERFLOW
 #endif
-
-/* TODO:
- * - add substream support for multiple devices in case of
- *	SND_DYNAMIC_MINORS is not used
- * - Multiple node representation
- *	driver should be able to register multiple nodes
- */
-
-static DEFINE_MUTEX(device_mutex);
 
 struct snd_compr_file {
 	unsigned long caps;
