@@ -38,8 +38,11 @@ ownership. This is not an exhaustive CVE assessment or an independent audit of
 all later Android/Qualcomm/Sony driver fixes. On XQ-BT52, a clean build
 with the early boot RNG API adaptation and SDHCI host-lock fix booted both
 a RAM-only recovery and the installed Ubuntu Touch system. USB SSH, LightDM,
-oFono and the Android HAL container started. This confirms boot recovery;
-complete hardware, suspend and clean-install qualification remains pending.
+oFono and the Android HAL container started. The installed-system test then
+stalled at the Ubuntu Touch loading screen, lost USB/Wi-Fi connectivity and
+rebooted without a host command. The working boot and DTBO were restored.
+RAM boot is confirmed; the candidate remains unqualified for installation
+until this later failure and complete hardware/suspend testing are resolved.
 
 Audio and WireGuard compatibility commits are published in Actinis forks and
 pinned by exact commit in `.gitmodules` and `docs/UPSTREAM.json`. Upstream
