@@ -10,4 +10,5 @@ for path, source in data['submodules'].items():
 assert 'aafs_destroy_inode' in (root/'security/apparmor/apparmorfs.c').read_text()
 assert (root/'security/apparmor/af_unix.c').is_file()
 subprocess.run(['python3',str(root/'ci/test_cfg80211_pmf.py'),str(root)],check=True)
+subprocess.run(['python3',str(root/'ci/test_rndis_backport.py'),str(root)],check=True)
 print('Kernel source metadata and PMF matrix passed; no kernel build performed')

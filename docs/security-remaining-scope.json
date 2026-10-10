@@ -1,0 +1,9 @@
+{
+  "whole_files_deferred": [],
+  "partial_changes_deferred": {
+    "drivers/usb/gadget/function/f_ncm.c": "OS descriptor feature and netdev allocation refactor; Android lifecycle retained"
+  },
+  "vendor_only_advisory_audit": "not complete",
+  "all_511_semantic_merge_audit": "not complete",
+  "device_validation": false
+}

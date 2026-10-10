@@ -20,8 +20,9 @@
       "url": "https://github.com/sonyxperiadev/vendor-qcom-opensource-wlan-qcacld-3.0.git"
     },
     "techpack/audio": {
-      "commit": "a5bc0f922b0750e60a0e118901653c66121d7f98",
-      "url": "https://github.com/sonyxperiadev/kernel-techpack-audio.git"
+      "commit": "65d1c73554c43a8f5fd4bb09080bf2a6f0be7b76",
+      "url": "https://github.com/sonyxperiadev/kernel-techpack-audio.git",
+      "upstream_commit": "a5bc0f922b0750e60a0e118901653c66121d7f98"
     },
     "techpack/camera": {
       "commit": "3505c0c6b1044af320a519a8df86a78b529a18d1",
@@ -40,8 +41,17 @@
       "url": "https://github.com/sonyxperiadev/kernel-techpack-video.git"
     },
     "wireguard-linux-compat": {
-      "commit": "18fbcd68a35a892527345dc5679d0b2d860ee004",
-      "url": "https://github.com/mer-hybris/wireguard-linux-compat.git"
+      "commit": "b32cfdd33c145e11b92fea70f1dc5d75706a016a",
+      "url": "https://github.com/mer-hybris/wireguard-linux-compat.git",
+      "upstream_commit": "18fbcd68a35a892527345dc5679d0b2d860ee004"
     }
+  },
+  "security_backports": {
+    "source": "Linux 4.19.325-cip136",
+    "base": "Linux 4.19.248",
+    "cip_tar_sha256": "9e753afd86e574a8e67cdadbb8cc43ee8337521cd5afaef931c4c217fb2bbeb2",
+    "import_commit": "097a381200a622eed9ba9dd3d8be1e9892bff841",
+    "submodule_dependency_publication": "local only; publish dependency commits to writable forks before public parent push",
+    "device_validation": false
   }
 }

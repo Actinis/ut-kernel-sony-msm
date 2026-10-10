@@ -1,0 +1,417 @@
+[
+  {
+    "path": ".gitignore",
+    "resolution": "adapted",
+    "note": "Keep rejection-file ignores for backport work."
+  },
+  {
+    "path": "Documentation/arm64/silicon-errata.txt",
+    "resolution": "adapted",
+    "note": "Preserve A77 vendor erratum and add current upstream errata."
+  },
+  {
+    "path": "Makefile",
+    "resolution": "adapted",
+    "note": "Retain Clang warning option; propagate Clang flags via CPPFLAGS."
+  },
+  {
+    "path": "arch/arm/Kconfig",
+    "resolution": "adapted",
+    "note": "Use stable tracer compiler constraints for ARM32."
+  },
+  {
+    "path": "arch/arm64/include/asm/cpucaps.h",
+    "resolution": "adapted",
+    "note": "Allocate new capabilities after Sony-specific capability IDs."
+  },
+  {
+    "path": "arch/arm64/include/asm/cputype.h",
+    "resolution": "adapted",
+    "note": "Preserve Sony A77/N1 CPU IDs and add A76AE."
+  },
+  {
+    "path": "arch/arm64/kernel/cpu_errata.c",
+    "resolution": "adapted",
+    "note": "Retain Kryo erratum tables alongside new upstream mitigations."
+  },
+  {
+    "path": "arch/arm64/mm/mmu.c",
+    "resolution": "adapted",
+    "note": "Retain vendor generic-ioremap helper; removed FDT helper stays removed."
+  },
+  {
+    "path": "crypto/algif_aead.c",
+    "resolution": "upstream-replacement",
+    "note": "New upstream implementation removes obsolete null-cipher copy path and its vendor sync adaptation."
+  },
+  {
+    "path": "crypto/authenc.c",
+    "resolution": "upstream-replacement",
+    "note": "New upstream implementation removes obsolete null-cipher copy path and its vendor sync adaptation."
+  },
+  {
+    "path": "crypto/authencesn.c",
+    "resolution": "upstream-replacement",
+    "note": "New upstream implementation removes obsolete null-cipher copy path and its vendor sync adaptation."
+  },
+  {
+    "path": "drivers/block/loop.c",
+    "resolution": "upstream-replacement",
+    "note": "Use complete stable loop lifetime/locking implementation; no device-specific implementation."
+  },
+  {
+    "path": "drivers/char/random.c",
+    "resolution": "upstream-replacement",
+    "note": "Use complete maintained RNG implementation rather than mixing old entropy accounting with new APIs."
+  },
+  {
+    "path": "include/crypto/chacha20.h",
+    "resolution": "upstream-replacement",
+    "note": "ChaCha primitives paired with maintained RNG."
+  },
+  {
+    "path": "include/linux/random.h",
+    "resolution": "upstream-replacement",
+    "note": "Header paired with complete maintained RNG implementation."
+  },
+  {
+    "path": "include/trace/events/random.h",
+    "resolution": "upstream-replacement",
+    "note": "Trace definitions paired with maintained RNG."
+  },
+  {
+    "path": "drivers/char/Kconfig",
+    "resolution": "adapted",
+    "note": "Use new random Kconfig help and preserve independent downstream drivers."
+  },
+  {
+    "path": "drivers/clk/qcom/clk-alpha-pll.c",
+    "resolution": "adapted",
+    "note": "Correct post-divider width and include alpha-mode bits without removing vendor latch/test control."
+  },
+  {
+    "path": "drivers/clk/qcom/clk-rcg2.c",
+    "resolution": "adapted",
+    "note": "Vendor already performs multiplication in u64, avoiding unsigned-long overflow."
+  },
+  {
+    "path": "drivers/clk/qcom/dispcc-sdm845.c",
+    "resolution": "adapted",
+    "note": "Vendor removed this GDSC; do not resurrect unused upstream power-domain object."
+  },
+  {
+    "path": "drivers/devfreq/devfreq.c",
+    "resolution": "adapted",
+    "note": "Destroy vendor event mutex and upstream SRCU notifier resources."
+  },
+  {
+    "path": "drivers/edac/edac_device.c",
+    "resolution": "adapted",
+    "note": "Preserve configured polling interval and apply zero-interval fallback."
+  },
+  {
+    "path": "drivers/hid/hid-ids.h",
+    "resolution": "adapted",
+    "note": "Preserve vendor headset IDs and add upstream IDs."
+  },
+  {
+    "path": "drivers/irqchip/irq-gic-v3.c",
+    "resolution": "adapted",
+    "note": "Restore GIC after failed CPU power entry while retaining vendor suspend guard."
+  },
+  {
+    "path": "drivers/md/dm-verity-fec.c",
+    "resolution": "adapted",
+    "note": "Keep vendor mapped-device pointer; remove unused fec_blocks variable."
+  },
+  {
+    "path": "drivers/mmc/core/block.c",
+    "resolution": "adapted",
+    "note": "Cache issue type before completion frees request and preserve vendor active-request accounting."
+  },
+  {
+    "path": "drivers/mmc/core/core.c",
+    "resolution": "adapted",
+    "note": "Add SD-express guard while preserving vendor single-frequency scan."
+  },
+  {
+    "path": "drivers/mmc/core/mmc_test.c",
+    "resolution": "adapted",
+    "note": "Preserve null highmem guard and new allocation-error label."
+  },
+  {
+    "path": "drivers/mmc/host/cqhci.c",
+    "resolution": "adapted",
+    "note": "Use upstream warning severity and retain vendor longer halt timeout."
+  },
+  {
+    "path": "drivers/mmc/host/sdhci-msm.c",
+    "resolution": "adapted",
+    "note": "Upstream change removes log for a probe path replaced by downstream host setup."
+  },
+  {
+    "path": "drivers/mmc/host/sdhci.h",
+    "resolution": "adapted",
+    "note": "Retain vendor IRQ API and add debug dump helper."
+  },
+  {
+    "path": "drivers/of/fdt.c",
+    "resolution": "adapted",
+    "note": "Preserve vendor command-line variables and update CRC after erasing RNG seed."
+  },
+  {
+    "path": "drivers/platform/x86/intel_cht_int33fe.c",
+    "resolution": "adapted",
+    "note": "Retain downstream endpoint naming and initialize fwnodes for actual connection indices."
+  },
+  {
+    "path": "include/linux/mmc/host.h",
+    "resolution": "adapted",
+    "note": "Keep vendor host callbacks and add SD-express callback."
+  },
+  {
+    "path": "include/linux/timer.h",
+    "resolution": "adapted",
+    "note": "Keep vendor deferrable timer base export and adopt shutdown-safe timer API."
+  },
+  {
+    "path": "include/net/netns/netfilter.h",
+    "resolution": "adapted",
+    "note": "DECNET hook array is removed upstream; vendor uses unconditional ingress hook so no extra endif."
+  },
+  {
+    "path": "include/net/tcp.h",
+    "resolution": "adapted",
+    "note": "Keep vendor sysctl declarations and adopt upstream quickack signature."
+  },
+  {
+    "path": "kernel/cgroup/cgroup.c",
+    "resolution": "adapted",
+    "note": "Include both vendor PSI and upstream CPU declarations."
+  },
+  {
+    "path": "kernel/cgroup/cpuset.c",
+    "resolution": "adapted",
+    "note": "Vendor already releases hotplug lock and retains requested affinity helper."
+  },
+  {
+    "path": "kernel/events/core.c",
+    "resolution": "adapted",
+    "note": "Advance original leader generation before downstream shared-event leader reset."
+  },
+  {
+    "path": "kernel/sched/idle.c",
+    "resolution": "adapted",
+    "note": "Preserve vendor reserved-CPU polling condition."
+  },
+  {
+    "path": "kernel/time/timer.c",
+    "resolution": "adapted",
+    "note": "Use stable wait-running loop and retain downstream polling delay."
+  },
+  {
+    "path": "mm/oom_kill.c",
+    "resolution": "adapted",
+    "note": "Keep downstream mm handling and add cred declaration for stable privilege filtering."
+  },
+  {
+    "path": "mm/page_alloc.c",
+    "resolution": "adapted",
+    "note": "Gate another compaction attempt on can_compact, preserving downstream low-memory-killer condition."
+  },
+  {
+    "path": "mm/slub.c",
+    "resolution": "adapted",
+    "note": "Validate object pointer before diagnostic dereference; retain downstream panic policy."
+  },
+  {
+    "path": "mm/zsmalloc.c",
+    "resolution": "adapted",
+    "note": "Zero zspage descriptor and preserve CMA exclusion."
+  },
+  {
+    "path": "net/qrtr/qrtr.c",
+    "resolution": "adapted",
+    "note": "Check size before alignment and copy broadcast buffers, preserving downstream endpoint locking."
+  },
+  {
+    "path": "security/apparmor/apparmorfs.c",
+    "resolution": "adapted",
+    "note": "FP4 backport already has policy credentials and its own loaddata internal reference API."
+  },
+  {
+    "path": "security/apparmor/include/match.h",
+    "resolution": "adapted",
+    "note": "FP4 backport already defines verified encoding marker and additional valid flags."
+  },
+  {
+    "path": "security/apparmor/policy.c",
+    "resolution": "adapted",
+    "note": "FP4 backport already has privilege subset checks and subject/object credentials."
+  },
+  {
+    "path": "sound/core/compress_offload.c",
+    "resolution": "adapted",
+    "note": "Keep downstream exported device APIs used by Qualcomm audio; upstream removed its obsolete interfaces."
+  },
+  {
+    "path": "sound/usb/quirks-table.h",
+    "resolution": "adapted",
+    "note": "Add complete upstream MacroSilicon capture quirks."
+  },
+  {
+    "path": "drivers/gpu/drm/virtio/virtgpu_ioctl.c",
+    "resolution": "adapted",
+    "note": "Vendor already uses new allocation/fence cleanup; drop GEM reference after exporting handles."
+  },
+  {
+    "path": "drivers/input/evdev.c",
+    "resolution": "adapted",
+    "note": "Keep vendor timestamp API and initialize padding before enqueue."
+  },
+  {
+    "path": "drivers/thermal/thermal_core.c",
+    "resolution": "adapted",
+    "note": "Vendor already initializes sysfs attributes before registration."
+  },
+  {
+    "path": "fs/ext4/page-io.c",
+    "resolution": "adapted",
+    "note": "Use separate pagecache and encrypted bounce arguments with vendor fscrypt API."
+  },
+  {
+    "path": "fs/f2fs/gc.c",
+    "resolution": "adapted",
+    "note": "Reject special inodes while retaining downstream fsck flag."
+  },
+  {
+    "path": "fs/f2fs/inode.c",
+    "resolution": "adapted",
+    "note": "Add corruption validation and dirty-inode cleanup, preserving vendor quota ownership."
+  },
+  {
+    "path": "fs/f2fs/segment.c",
+    "resolution": "adapted",
+    "note": "Vendor already reports invalid journal entry counts."
+  },
+  {
+    "path": "fs/f2fs/super.c",
+    "resolution": "adapted",
+    "note": "Retain vendor logging API; clear recovery count for readonly mounts."
+  },
+  {
+    "path": "fs/f2fs/sysfs.c",
+    "resolution": "adapted",
+    "note": "Add typed sysfs accessors while retaining vendor statistics outside accessor definitions."
+  },
+  {
+    "path": "fs/overlayfs/dir.c",
+    "resolution": "adapted",
+    "note": "Perform security label creation for hardlinks too, retaining vendor credential fallback."
+  },
+  {
+    "path": "fs/userfaultfd.c",
+    "resolution": "adapted",
+    "note": "Allow low addresses after upstream mmap-min policy change, retaining pointer-based vendor range API."
+  },
+  {
+    "path": "include/linux/compiler-clang.h",
+    "resolution": "adapted",
+    "note": "Preserve vendor sanitizer macro definition elsewhere; add stable KMSAN attributes."
+  },
+  {
+    "path": "security/apparmor/policy_unpack.c",
+    "resolution": "adapted",
+    "note": "Use shared state-count validation structure rather than duplicate FP4 bounds checks."
+  },
+  {
+    "path": "drivers/leds/leds-pwm.c",
+    "resolution": "adapted-r2",
+    "note": "Atomic PWM state and error propagation adapted while retaining vendor blink support; driver disabled in device config, separate object compilation required."
+  },
+  {
+    "path": "drivers/media/dvb-core/dmxdev.c",
+    "resolution": "adapted",
+    "note": "Adapted ringbuffer reset and paired flush parameters while preserving vendor callback framework."
+  },
+  {
+    "path": "drivers/media/dvb-core/dvb_demux.c",
+    "resolution": "adapted-r2",
+    "note": "Section continuity counter update moved after discontinuity handling; vendor first_cc and PES accounting retained. Upstream PES logging reorder is unnecessary because downstream has no corresponding stale-counter diagnostic."
+  },
+  {
+    "path": "drivers/mmc/host/sdhci.c",
+    "resolution": "adapted-r2",
+    "note": "Stable preset/driver strength, voltage resume and UHS reinit updates adapted; vendor SDIO IRQ/locking retained and restored on new early-return path."
+  },
+  {
+    "path": "drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c",
+    "resolution": "adapted-r2",
+    "note": "Netlink maxtype corrected to final valid vendor attribute. Vendor synchronize_rcu already protects both endpoint free paths; QMI callbacks and nr_rmnet_devs ownership retained."
+  },
+  {
+    "path": "drivers/rpmsg/qcom_glink_native.c",
+    "resolution": "adapted-r2",
+    "note": "Allocation, OPEN priority masking, driver_override cleanup and intentless TX error handling imported. Existing downstream waitqueue/reset, chunking and close/close_ack device teardown retained; no recursive device unregister added to endpoint destroy."
+  },
+  {
+    "path": "drivers/soc/qcom/rpmh-rsc.c",
+    "resolution": "adapted-r2",
+    "note": "AMC trigger cleared for every completed active request using vendor __tcs_trigger; wake-TCS interrupt disabling remains conditional."
+  },
+  {
+    "path": "drivers/usb/dwc3/core.c",
+    "resolution": "adapted-r2",
+    "note": "Event count acknowledgement, host-only buffer guards, PHY exit ordering, ULPI defer and DMA segment bound adapted. Qualcomm role switching replaces upstream __dwc3_set_mode/core_init_mode, so their deleted-function deltas are inapplicable. dis_split quirk supported by resume hook, unused by Sony DTS. Runtime pending-event balancing aligned with upstream."
+  },
+  {
+    "path": "drivers/usb/dwc3/gadget.c",
+    "resolution": "adapted-r2",
+    "note": "TRB accounting, isochronous transfer/late-disconnect guards, event-count bound, final pending flag clear and save/restore PHY sleep bits imported. Qualcomm reset delay/GSI and IRQ path retained; generic runtime-suspended ISR block is absent in vendor implementation."
+  },
+  {
+    "path": "drivers/usb/gadget/function/f_fs.c",
+    "resolution": "adapted",
+    "note": "Adapted buffer lifetime, allocation failure and UNBIND event ordering with vendor endpoint counters."
+  },
+  {
+    "path": "drivers/usb/gadget/function/f_hid.c",
+    "resolution": "adapted",
+    "note": "Paired upstream SET_REPORT completion with out-endpoint guard."
+  },
+  {
+    "path": "drivers/usb/gadget/function/f_ncm.c",
+    "resolution": "adapted-r2",
+    "note": "Protocol/parser fixes imported; Android ncm_ctrlrequest, uevent and bind-time netdev lifecycle retained. Upstream OS descriptor addition/allocation refactor deferred because they alter Android-specific ownership."
+  },
+  {
+    "path": "drivers/usb/gadget/function/rndis.c",
+    "resolution": "adapted-r2",
+    "note": "Query buffer length/offset fix imported; vendor packet header check already stricter. Overflow-safe message bounds and complete-message consumption added for vendor multi-packet parser."
+  },
+  {
+    "path": "drivers/usb/typec/mux.c",
+    "resolution": "adapted-r2",
+    "note": "Existing fwnode match implementation retained; optional orientation semantics and mux container corrected. SVID count kept separately from property-read success status."
+  },
+  {
+    "path": "kernel/time/hrtimer.c",
+    "resolution": "adapted",
+    "note": "Adapted CPU-dying migration and preserved Qualcomm live-CPU quiesce; device hotplug/concurrency validation remains required."
+  },
+  {
+    "path": "drivers/scsi/ufs/ufshcd.c",
+    "resolution": "adapted",
+    "note": "Dump complete task descriptor within its bounds using downstream log API."
+  },
+  {
+    "path": "drivers/usb/dwc3/core.h",
+    "resolution": "adapted",
+    "note": "Preserve vendor fields and document new upstream split quirk."
+  },
+  {
+    "path": "drivers/usb/host/xhci-plat.c",
+    "resolution": "adapted",
+    "note": "Downstream removed upstream runtime-PM activation path; do not resurrect it."
+  }
+]
