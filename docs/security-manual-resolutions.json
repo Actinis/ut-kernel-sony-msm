@@ -232,7 +232,7 @@
   {
     "path": "net/qrtr/qrtr.c",
     "resolution": "adapted",
-    "note": "Check size before alignment and copy broadcast buffers, preserving downstream endpoint locking."
+    "note": "Check size before alignment with independent logical OR bounds/length guards and copy broadcast buffers, preserving downstream endpoint locking. The bounds guard must not be chained into an inequality comparison, which rejects valid packets."
   },
   {
     "path": "security/apparmor/apparmorfs.c",
