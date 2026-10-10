@@ -342,7 +342,7 @@
   {
     "path": "drivers/mmc/host/sdhci.c",
     "resolution": "adapted-r2",
-    "note": "Stable preset/driver strength, voltage resume and UHS reinit updates adapted; vendor SDIO IRQ/locking retained and restored on new early-return path."
+    "note": "Stable preset/driver strength, voltage resume and UHS reinit updates adapted. The early-return path releases the vendor host lock before restoring SDIO IRQs, preventing recursive spin_lock_irqsave with interrupts disabled."
   },
   {
     "path": "drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c",
