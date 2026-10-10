@@ -49,8 +49,14 @@ void __init init_random_pool(void)
 						RANDOM_BUFFER_SIZE);
 		bytes_received = (bytes_received <= RANDOM_BUFFER_SIZE) ?
 					bytes_received : RANDOM_BUFFER_SIZE;
-		add_hwgenerator_randomness(random_buffer, bytes_received,
-					   bytes_received << 3);
+		/*
+		 * setup_arch() runs before the scheduler and kthreads exist.
+		 * The maintained RNG's hwrng API uses kthread_should_stop()
+		 * and may sleep, so feed this early seed through its boot API.
+		 * Entropy credit follows CONFIG_RANDOM_TRUST_BOOTLOADER;
+		 * an untrusted seed is still mixed into the input pool.
+		 */
+		add_bootloader_randomness(random_buffer, bytes_received);
 	}
 }
 
